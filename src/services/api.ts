@@ -41,7 +41,7 @@ export const getTodo = async () => {
   }
 };
 
-export const postTodo = async (title: string, content: string, priority: number) => {
+export const postTodo = async (title: string, content: string, priority: string) => {
   const response = await client.post(
     'toDo',
     {
@@ -53,6 +53,8 @@ export const postTodo = async (title: string, content: string, priority: number)
   );
 
   if (response.status === 200) {
+    console.log(response);
+
     return true;
   }
 
