@@ -10,15 +10,8 @@ const toDos = ref<ToDoType[]>();
 
 const title = ref<string>('');
 const content = ref<string>('');
-const priority = ref<string | number>('');
+const priority = ref<string>('');
 
-if (priority.value === 'Baixa') {
-  priority.value = 1;
-} else if (priority.value === 'Média') {
-  priority.value = 2;
-} else {
-  priority.value = 3;
-}
 const handleGetTodo = async () => {
   const response = await getTodo();
 
@@ -30,6 +23,13 @@ const handleGetTodo = async () => {
 };
 
 const handlePostTodo = async () => {
+  if (priority.value === 'Baixa') {
+    priority.value = '1';
+  } else if (priority.value === 'Média') {
+    priority.value = '2';
+  } else {
+    priority.value = '3';
+  }
   const response = await postTodo(title.value, content.value, priority.value);
 
   if (response) {
@@ -113,7 +113,12 @@ onMounted(() => {
         </v-card-text>
 
         <v-card-actions>
-          <v-btn text="Adicionar" color="primary" variant="tonal" @click="handlePostTodo()"></v-btn>
+          <v-btn
+            text="Adicionar"
+            color="primary"
+            variant="tonal"
+            @click="handlePostTodo(), (isActive.value = false)"
+          ></v-btn>
           <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
         </v-card-actions>
       </v-card>
