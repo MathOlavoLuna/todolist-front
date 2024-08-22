@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NavBar from '@/components/NavBar.vue';
 import ToDoCard from '@/components/ToDoCard.vue';
-import { getTodo, postTodo } from '@/services/api';
+import { getToDo, postTodo } from '@/services/api';
 import type { ToDoType } from '@/types';
 import { checkLogged } from '@/utils/checkLogged';
 import { onMounted, ref } from 'vue';
@@ -13,7 +13,7 @@ const content = ref<string>('');
 const priority = ref<string>('');
 
 const handleGetTodo = async () => {
-  const response = await getTodo();
+  const response = await getToDo();
 
   if (response) {
     toDos.value = response;
@@ -60,13 +60,9 @@ onMounted(() => {
         </v-col>
       </v-row>
 
-      <v-row>
+      <v-row class="">
         <v-col cols="12">
-          <v-container>
-            <v-row>
-              <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" />
-            </v-row>
-          </v-container>
+          <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" />
         </v-col>
       </v-row>
     </v-container>
