@@ -3,7 +3,7 @@ import { editDone } from '@/services/api';
 import type { ToDoType } from '@/types';
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiSquare } from '@mdi/js';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 interface toDoProps {
  toDo: ToDoType;
