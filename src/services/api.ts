@@ -44,7 +44,7 @@ export const getToDo = async () => {
 export const editDone = async (id: number, done: boolean) => {
  try {
   const response = await client.put(
-   `ToDo/${id}`,
+   `toDo/${id}`,
    {
     done
    },
@@ -52,10 +52,10 @@ export const editDone = async (id: number, done: boolean) => {
   );
 
   if (response.status === 200) {
-   return 'Done Editado com sucesso' + response;
+   return response.data.msg;
   }
 
-  return 'Falha ao editar Done' + response;
+  return response.data.msg;
  } catch (error) {
   console.log(error);
  }
