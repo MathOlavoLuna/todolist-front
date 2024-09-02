@@ -11,22 +11,20 @@ interface toDoProps {
 defineProps<toDoProps>();
 
 const path = mdiSquare;
-const doneCheck = ref<boolean>();
+const doneCheck = ref<boolean>(false);
+const emits = defineEmits(['callGetToDo']);
 
 async function handleEditDone(id: number) {
- if (doneCheck.value) {
-  const response = await editDone(id, true);
-  console.log(response);
- }
-}
+ const response = await editDone(id, !doneCheck.value); //negando o valor para que ele sempre faça o edit da maneira correta (tu anotou isso no word VUE)
+ console.log(response);
 
-//teria que pegar o id desse post no click de concluido do checkbox,
-//fazer um put nesse id, e passar para "done: true", por a prioridade dele para 0,
-//e fazer uma animação de tarefa concluida
+ emits('callGetToDo');
+}
 </script>
+
 <template>
  <v-col cols="12" lg="12">
-  <v-card class="mx-auto" max-width="1000" hover :class="{ 'opacity-50': doneCheck }">
+  <v-card class="mx-auto" max-width="1000" hover :class="{ 'opacity-50': toDo.done }">
    <v-card-item>
     <div class="d-flex align-center justify-space-between">
      <div class="text-lg-h5 text-phone">{{ toDo.title }}</div>
@@ -46,7 +44,7 @@ async function handleEditDone(id: number) {
    <v-card-text class="d-flex align-center justify-space-between">
     <div>{{ toDo.content }}</div>
     <label class="form-control">
-     <input type="checkbox" @change="handleEditDone(toDo.id)" :v-model="(doneCheck = toDo.done)" :checked="toDo.done" />
+     <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
     </label>
    </v-card-text>
   </v-card>
