@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import HelloUser from '@/components/HelloUser.vue';
 import NavBar from '@/components/NavBar.vue';
 import ToDoCard from '@/components/ToDoCard.vue';
-import { getToDo, postTodo } from '@/services/api';
+import { getToDo, getUser, postTodo } from '@/services/api';
 import type { ToDoType } from '@/types';
 import { checkLogged } from '@/utils/checkLogged';
 import { onMounted, ref } from 'vue';
@@ -22,6 +23,11 @@ const handleGetToDo = async () => {
  return false;
 };
 
+const handleGetUser = async () => {
+ const response = await getUser();
+ localStorage.setItem('user', JSON.stringify(response));
+};
+
 const handlePostToDo = async () => {
  if (priority.value === 'Baixa') {
   priority.value = '1';
@@ -37,10 +43,12 @@ const handlePostToDo = async () => {
  } else {
   console.log('A fazer não atribuído.');
  }
+ handleGetToDo();
 };
 
 onMounted(() => {
  checkLogged('/');
+ handleGetUser();
  handleGetToDo();
 });
 </script>
@@ -56,7 +64,8 @@ onMounted(() => {
 
    <v-row class="ml-5 align-center">
     <v-col cols="12" lg="12" md="12">
-     <span>Good Afternoon Matheus</span>
+     <HelloUser />
+     <!-- usar uma lib de horários para saber em qual horario do pc estamos e fazer uma lógica com base nisso -->
     </v-col>
    </v-row>
 
