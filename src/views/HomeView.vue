@@ -8,17 +8,23 @@ import { checkLogged } from '@/utils/checkLogged';
 import { onMounted, ref } from 'vue';
 
 const toDos = ref<ToDoType[]>();
-
+//newToDo
 const title = ref<string>('');
 const content = ref<string>('');
 const priority = ref<string>('');
+//Pagination
+const page = ref<number>(1);
+const lastPage = ref<number>(0);
+//Spinner
+const spinner = ref<boolean>(false);
 
 const handleGetToDo = async () => {
- const response = await getToDo();
- console.log(response);
+ const response = await getToDo(page.value);
+ lastPage.value = response.last_page;
 
  if (response) {
   toDos.value = response.data;
+  spinner.value = false;
   return true;
  }
  return false;
@@ -48,6 +54,7 @@ const handlePostToDo = async () => {
 };
 
 onMounted(() => {
+ spinner.value = true;
  checkLogged('/');
  handleGetUser();
  handleGetToDo();
@@ -67,11 +74,14 @@ onMounted(() => {
     <HelloUser />
    </v-col>
   </v-row>
-  <v-row class="py-5">
+  <div v-if="spinner" class="d-flex justify-center align-center h-75 w-100">
+   <v-progress-circular color="black" indeterminate :size="59" :width="5"></v-progress-circular>
+  </div>
+  <v-row class="pb-16">
    <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
   </v-row>
+  <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination>
  </v-container>
-
  <v-dialog max-width="600" persistent>
   <template v-slot:activator="{ props: activatorProps }">
    <v-btn icon="mdi-plus" size="large" class="btn-add-todo" v-bind="activatorProps"></v-btn>
