@@ -7,7 +7,7 @@ const client = axios.create({
 });
 
 const config = {
- headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 };
 
 export const login = async (email: string, password: string) => {
@@ -18,7 +18,7 @@ export const login = async (email: string, password: string) => {
   });
 
   if (response.status === 200) {
-   sessionStorage.setItem('token', response.data.data.token);
+   localStorage.setItem('token', response.data.data.token);
    return true;
   }
   return false;
@@ -27,6 +27,10 @@ export const login = async (email: string, password: string) => {
  }
 };
 
+export const getUser = async () => {
+ const response = await client.get('user', config);
+ return response.data.data;
+};
 export const getToDo = async () => {
  try {
   const response = await client.get('toDo', config);
@@ -44,7 +48,7 @@ export const getToDo = async () => {
 export const editDone = async (id: number, done: boolean) => {
  try {
   const response = await client.put(
-   `ToDo/${id}`,
+   `toDo/${id}`,
    {
     done
    },
@@ -52,10 +56,10 @@ export const editDone = async (id: number, done: boolean) => {
   );
 
   if (response.status === 200) {
-   return 'Done Editado com sucesso' + response;
+   return response.data.msg;
   }
 
-  return 'Falha ao editar Done' + response;
+  return response.data.msg;
  } catch (error) {
   console.log(error);
  }
