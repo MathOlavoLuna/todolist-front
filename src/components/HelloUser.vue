@@ -4,7 +4,7 @@ const date = new Date();
 const dayHour = date.getHours();
 let message = '';
 
-if (dayHour > 6 && dayHour < 12) {
+if (dayHour > 6 && dayHour <= 12) {
  message = 'Good Morning';
 } else if (dayHour > 12 && dayHour <= 18) {
  message = 'Good Afternoon';
