@@ -15,9 +15,10 @@ const priority = ref<string>('');
 
 const handleGetToDo = async () => {
  const response = await getToDo();
+ console.log(response);
 
  if (response) {
-  toDos.value = response;
+  toDos.value = response.data;
   return true;
  }
  return false;
@@ -54,28 +55,22 @@ onMounted(() => {
 </script>
 
 <template>
- <div class="h-screen d-flex flex-column align-center justify-center">
-  <v-container class="bg-blue h-100 pa-0">
-   <v-row>
-    <v-col cols="12" lg="12">
-     <NavBar class="bg-cyan" />
-    </v-col>
-   </v-row>
+ <v-container class="h-100 pa-0 bg-blue">
+  <v-row>
+   <v-col cols="12" lg="12">
+    <NavBar class="bg-cyan" />
+   </v-col>
+  </v-row>
 
-   <v-row class="ml-5 align-center">
-    <v-col cols="12" lg="12" md="12">
-     <HelloUser />
-     <!-- usar uma lib de horários para saber em qual horario do pc estamos e fazer uma lógica com base nisso -->
-    </v-col>
-   </v-row>
-
-   <v-row class="">
-    <v-col cols="12">
-     <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
-    </v-col>
-   </v-row>
-  </v-container>
- </div>
+  <v-row class="ml-5 align-center">
+   <v-col cols="12" lg="12" md="12">
+    <HelloUser />
+   </v-col>
+  </v-row>
+  <v-row class="py-5">
+   <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
+  </v-row>
+ </v-container>
 
  <v-dialog max-width="600" persistent>
   <template v-slot:activator="{ props: activatorProps }">
@@ -115,8 +110,8 @@ onMounted(() => {
  right: 0;
  bottom: 0;
  z-index: 1;
- margin-right: 23.5%;
- margin-bottom: 4%;
+ margin-right: 20%;
+ margin-bottom: 2%;
 }
 
 @media (max-width: 1200px) {
