@@ -31,9 +31,11 @@ export const getUser = async () => {
  const response = await client.get('user', config);
  return response.data.data;
 };
-export const getToDo = async () => {
+
+export const getToDo = async (pageNumber: number) => {
+ //para lógica do paginatio funcionar, temos que tornar a url dinâmica ao inves de fazermos o gaet na toDo apenas, temos que passar a page.
  try {
-  const response = await client.get('toDo', config);
+  const response = await client.get(`toDo?page=${pageNumber}`, config);
 
   if (response.status === 200) {
    return response.data.data;
