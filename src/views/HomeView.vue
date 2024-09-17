@@ -61,7 +61,7 @@ onMounted(() => {
 </script>
 
 <template>
- <v-container class="h-100 pa-0 bg-blue">
+ <v-container class="h-100 pa-0 pb-10 bg-blue" fluid>
   <v-row>
    <v-col cols="12" lg="12">
     <NavBar class="bg-cyan" />
@@ -77,7 +77,10 @@ onMounted(() => {
    <v-progress-circular color="black" indeterminate :size="59" :width="5"></v-progress-circular>
   </div>
   <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
-  <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination>
+
+  <v-row>
+   <v-col cols="12"> <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination></v-col>
+  </v-row>
  </v-container>
  <v-dialog max-width="600" persistent>
   <template v-slot:activator="{ props: activatorProps }">
