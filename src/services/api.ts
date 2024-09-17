@@ -47,6 +47,14 @@ export const getToDo = async (pageNumber: number) => {
  }
 };
 
+export const getToDoInfs = async (id:number) => {
+    const response = await client.get(`toDo/${id}`, config);
+    if(response.status === 200){
+        return response.data;
+    }
+    return false
+}
+
 export const editDone = async (id: number, done: boolean) => {
  try {
   const response = await client.put(
@@ -67,7 +75,7 @@ export const editDone = async (id: number, done: boolean) => {
  }
 };
 
-export const postTodo = async (title: string, content: string, priority: string) => {
+export const postToDo = async (title: string, content: string, priority: string) => {
  try {
   const response = await client.post(
    'toDo',
@@ -89,4 +97,22 @@ export const postTodo = async (title: string, content: string, priority: string)
  } catch (error) {
   console.log(error);
  }
+};
+
+export const putToDo = async (id:number, title: string, content: string, priority: number) => {
+    try {
+        const response = await client.put(`toDo/${id}`, {
+            title,
+            content,
+            priority,
+        }, config)
+
+        if(response.status === 200){
+            console.log(response);
+            return true
+        }
+        return false
+    } catch (error) {
+        console.log(error);
+    }
 };
