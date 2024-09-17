@@ -2,19 +2,24 @@
 import HelloUser from '@/components/HelloUser.vue';
 import NavBar from '@/components/NavBar.vue';
 import ToDoCard from '@/components/ToDoCard.vue';
-import { getToDo, getUser, postTodo } from '@/services/api';
+import SvgIcon from '@jamescoyle/vue-icon';
+import {} from '@mdi/js';
+import { getToDo, getUser, postToDo } from '@/services/api';
 import type { ToDoType } from '@/types';
 import { checkLogged } from '@/utils/checkLogged';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { validatePriority } from '@/utils/validatePriority';
 
 const toDos = ref<ToDoType[]>();
 //newToDo
 const title = ref<string>('');
 const content = ref<string>('');
 const priority = ref<string>('');
+
 //Pagination
 const page = ref<number>(1);
 const lastPage = ref<number>(0);
+
 //Spinner
 const spinner = ref<boolean>(false);
 
@@ -36,21 +41,15 @@ const handleGetUser = async () => {
 };
 
 const handlePostToDo = async () => {
- if (priority.value === 'Baixa') {
-  priority.value = '1';
- } else if (priority.value === 'Média') {
-  priority.value = '2';
- } else {
-  priority.value = '3';
- }
- const response = await postTodo(title.value, content.value, priority.value);
+ const validatedPriority = validatePriority(priority.value);
+ const response = await postToDo(title.value, content.value, validatedPriority);
 
  if (response) {
-  console.log('A fazer atribuído.');
+  alert('A fazer atribuído.');
+  handleGetToDo();
  } else {
-  console.log('A fazer não atribuído.');
+  alert('A fazer não atribuído.');
  }
- handleGetToDo();
 };
 
 onMounted(() => {
@@ -77,9 +76,7 @@ onMounted(() => {
   <div v-if="spinner" class="d-flex justify-center align-center h-75 w-100">
    <v-progress-circular color="black" indeterminate :size="59" :width="5"></v-progress-circular>
   </div>
-  <v-row class="pb-16">
-   <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
-  </v-row>
+  <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
   <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination>
  </v-container>
  <v-dialog max-width="600" persistent>
