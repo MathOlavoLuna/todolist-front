@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { editDone, getToDo, getToDoInfs, putToDo } from '@/services/api';
+import { delToDo, editDone, getToDo, getToDoInfs, putToDo } from '@/services/api';
 import type { ToDoType } from '@/types';
 import { validatePriority } from '@/utils/validatePriority';
 import SvgIcon from '@jamescoyle/vue-icon';
@@ -39,6 +39,13 @@ async function handlePutToDo(id: number) {
  if (response) emits('callGetToDo');
 }
 
+async function handleDeleteToDo(id: number) {
+ const response = await delToDo(id);
+ if (response) {
+  emits('callGetToDo');
+ }
+}
+
 function showIcons() {
  showClouds.value = !showClouds.value;
 }
@@ -73,7 +80,7 @@ function showIcons() {
   <v-col v-if="showClouds" cols="12" lg="3" class="d-flex flex-column">
    <v-dialog max-width="600" persistent>
     <template v-slot:activator="{ props: activatorProps }">
-     <v-btn icon="mdi-pencil" size="default" class="btn-add-todo" v-bind="activatorProps" @click="handleGetToDoInfs(toDo.id)"></v-btn>
+     <v-btn icon="mdi-pencil" size="default" v-bind="activatorProps" @click="handleGetToDoInfs(toDo.id)"></v-btn>
     </template>
 
     <template v-slot:default="{ isActive }">
@@ -102,7 +109,7 @@ function showIcons() {
      </v-card>
     </template>
    </v-dialog>
-   <v-btn class="d-block" icon="mdi-delete" size="default"></v-btn
+   <v-btn class="d-block" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn
   ></v-col>
  </v-row>
 </template>

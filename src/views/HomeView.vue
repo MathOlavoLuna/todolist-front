@@ -61,13 +61,12 @@ onMounted(() => {
 </script>
 
 <template>
- <v-container class="h-100 pa-0 bg-blue">
+ <v-container class="h-100 pa-0 bg-blue" fluid>
   <v-row>
    <v-col cols="12" lg="12">
     <NavBar class="bg-cyan" />
    </v-col>
   </v-row>
-
   <v-row class="ml-5 align-center">
    <v-col cols="12" lg="12" md="12">
     <HelloUser />
@@ -77,39 +76,43 @@ onMounted(() => {
    <v-progress-circular color="black" indeterminate :size="59" :width="5"></v-progress-circular>
   </div>
   <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
-  <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination>
+
+  <v-row>
+   <v-col cols="12" class="mb-14"> <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination></v-col>
+  </v-row>
+
+  <v-dialog max-width="600" persistent>
+   <template v-slot:activator="{ props: activatorProps }">
+    <v-btn icon="mdi-plus" size="large" class="btn-add-todo" v-bind="activatorProps"></v-btn>
+   </template>
+
+   <template v-slot:default="{ isActive }">
+    <v-card prepend-icon="mdi mdi-playlist-plus" title="Adicionar Tarefa">
+     <v-card-text>
+      <v-row>
+       <v-col cols="12" lg="12">
+        <v-text-field label="Título" variant="underlined" clearable required v-model="title" maxlength="40"></v-text-field>
+       </v-col>
+       <v-col cols="12" lg="12">
+        <v-text-field label="Conteúdo" variant="underlined" clearable v-model="content"></v-text-field>
+       </v-col>
+      </v-row>
+      <v-row>
+       <v-col cols="12" lg="12">
+        <v-label> Prioridade </v-label>
+        <v-combobox v-model="priority" :items="['Baixa', 'Média', 'Alta']" variant="underlined"></v-combobox>
+       </v-col>
+      </v-row>
+     </v-card-text>
+
+     <v-card-actions>
+      <v-btn text="Adicionar" color="primary" variant="tonal" @click="handlePostToDo(), (isActive.value = false)"></v-btn>
+      <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
+     </v-card-actions>
+    </v-card>
+   </template>
+  </v-dialog>
  </v-container>
- <v-dialog max-width="600" persistent>
-  <template v-slot:activator="{ props: activatorProps }">
-   <v-btn icon="mdi-plus" size="large" class="btn-add-todo" v-bind="activatorProps"></v-btn>
-  </template>
-
-  <template v-slot:default="{ isActive }">
-   <v-card prepend-icon="mdi mdi-playlist-plus" title="Adicionar Tarefa">
-    <v-card-text>
-     <v-row>
-      <v-col cols="12" lg="12">
-       <v-text-field label="Título" variant="underlined" clearable required v-model="title" maxlength="40"></v-text-field>
-      </v-col>
-      <v-col cols="12" lg="12">
-       <v-text-field label="Conteúdo" variant="underlined" clearable v-model="content"></v-text-field>
-      </v-col>
-     </v-row>
-     <v-row>
-      <v-col cols="12" lg="12">
-       <v-label> Prioridade </v-label>
-       <v-combobox v-model="priority" :items="['Baixa', 'Média', 'Alta']" variant="underlined"></v-combobox>
-      </v-col>
-     </v-row>
-    </v-card-text>
-
-    <v-card-actions>
-     <v-btn text="Adicionar" color="primary" variant="tonal" @click="handlePostToDo(), (isActive.value = false)"></v-btn>
-     <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
-    </v-card-actions>
-   </v-card>
-  </template>
- </v-dialog>
 </template>
 <style scoped>
 .btn-add-todo {

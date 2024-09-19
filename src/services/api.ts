@@ -120,3 +120,9 @@ export const putToDo = async (id: number, title: string, content: string, priori
   console.log(error);
  }
 };
+
+export const delToDo = async (id: number) => {
+ const response = await client.delete(`toDo/${id}`, config);
+ if (response.status === 200) return response.data;
+ return false;
+};
