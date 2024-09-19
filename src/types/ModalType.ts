@@ -1,8 +1,8 @@
 export default interface ModalType {
- icon: string;
- size: string;
- firstBtnFunction?: Function;
- modalIcon: string;
- modalTitle: string;
- secondBtnFunction: Function;
+  icon: string;
+  size: string;
+  firstBtnFunction?: () => void;
+  modalIcon: string;
+  modalTitle: string;
+  secondBtnFunction: (title: string, content: string, priority: string) => void;
 }
