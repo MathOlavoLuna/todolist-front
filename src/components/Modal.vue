@@ -5,19 +5,22 @@ import { ref } from 'vue';
 interface ModalProps {
   modal: ModalType;
 }
+defineProps<ModalProps>();
 
 const title = ref<string>('');
 const content = ref<string>('');
 const priority = ref<string>('');
 
-defineProps<ModalProps>();
+title.value = '';
+content.value = '';
+priority.value = '';
 </script>
 <template>
   <v-dialog max-width="600" persistent>
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
-        icon="mdi-{{ modal.icon }}"
-        size="{{ modal.size }}"
+        :icon="modal.icon"
+        :size="modal.size"
         class="btn-add-todo"
         v-bind="activatorProps"
         @click="
@@ -31,7 +34,7 @@ defineProps<ModalProps>();
     </template>
 
     <template v-slot:default="{ isActive }">
-      <v-card prepend-icon="mdi {{ modal.modalIcon }}" title="{{ modal.modalTitle }}">
+      <v-card :prepend-icon="modal.modalIcon" :title="modal.modalTitle">
         <v-card-text>
           <v-row>
             <v-col cols="12" lg="12">
@@ -57,16 +60,33 @@ defineProps<ModalProps>();
             @click="
               {
                 {
-                  modal.secondBtnFunction;
+                  modal.secondBtnFunction(title, content, priority), (isActive.value = false);
                 }
               }
-              isActive.value = false;
             "
-          ></v-btn>
+          >
+          </v-btn>
           <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
         </v-card-actions>
       </v-card>
     </template>
   </v-dialog>
 </template>
-<style></style>
+<style scoped>
+.btn-add-todo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  margin-right: 20%;
+  margin-bottom: 2%;
+}
+
+@media (max-width: 1200px) {
+  .btn-add-todo {
+    opacity: 80%;
+    margin-right: 4%;
+    margin-bottom: 6%;
+  }
+}
+</style>
