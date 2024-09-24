@@ -39,7 +39,7 @@ const handleGetToDo = async () => {
 
 const handleGetUser = async () => {
   const response = await getUser();
-  const helloUserActive = ref<boolean>(true);
+  helloUserActive.value = true;
   localStorage.setItem('user', JSON.stringify(response));
 };
 
