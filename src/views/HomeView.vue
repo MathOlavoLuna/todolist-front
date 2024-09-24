@@ -2,7 +2,6 @@
 import HelloUser from '@/components/HelloUser.vue';
 import NavBar from '@/components/NavBar.vue';
 import ToDoCard from '@/components/ToDoCard.vue';
-import SvgIcon from '@jamescoyle/vue-icon';
 import {} from '@mdi/js';
 import { getToDo, getUser, postToDo } from '@/services/api';
 import type { ToDoType } from '@/types';
@@ -13,6 +12,7 @@ import Modal from '@/components/Modal.vue';
 import type ModalType from '@/types/ModalType';
 
 const toDos = ref<ToDoType[]>();
+const helloUserActive = ref<boolean>(false);
 //newToDo
 const title = ref<string>('');
 const content = ref<string>('');
@@ -39,6 +39,7 @@ const handleGetToDo = async () => {
 
 const handleGetUser = async () => {
   const response = await getUser();
+  const helloUserActive = ref<boolean>(true);
   localStorage.setItem('user', JSON.stringify(response));
 };
 
@@ -57,8 +58,8 @@ const handlePostToDo = async (title: string, content: string, priority: string) 
 const modalHome: ModalType = { icon: 'mdi-plus', modalIcon: 'mdi mdi-playlist-plus', modalTitle: 'Adicionar Tarefa', size: 'large', secondBtnFunction: handlePostToDo };
 
 onMounted(() => {
-  spinner.value = true;
   checkLogged('/');
+  spinner.value = true;
   handleGetUser();
   handleGetToDo();
 });
@@ -73,7 +74,7 @@ onMounted(() => {
     </v-row>
     <v-row class="ml-5 align-center">
       <v-col cols="12" lg="12" md="12">
-        <HelloUser />
+        <div v-if="helloUserActive"><HelloUser /></div>
       </v-col>
     </v-row>
     <div v-if="spinner" class="d-flex justify-center align-center h-75 w-100">
