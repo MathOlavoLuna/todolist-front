@@ -13,10 +13,9 @@ import type ModalType from '@/types/ModalType';
 
 const toDos = ref<ToDoType[]>();
 const helloUserActive = ref<boolean>(false);
-//newToDo
-const title = ref<string>('');
-const content = ref<string>('');
-const priority = ref<string>('');
+
+//Modal
+const modalHome: ModalType = { icon: 'mdi-plus', modalIcon: 'mdi mdi-playlist-plus', modalTitle: 'Adicionar Tarefa', size: 'large' };
 
 //Pagination
 const page = ref<number>(1);
@@ -46,7 +45,6 @@ const handleGetUser = async () => {
 const handlePostToDo = async (title: string, content: string, priority: string) => {
   const validatedPriority = validatePriority(priority);
   const response = await postToDo(title, content, validatedPriority);
-
   if (response) {
     alert('A fazer atribuído.');
     handleGetToDo();
@@ -54,8 +52,6 @@ const handlePostToDo = async (title: string, content: string, priority: string) 
     alert('A fazer não atribuído.');
   }
 };
-
-const modalHome: ModalType = { icon: 'mdi-plus', modalIcon: 'mdi mdi-playlist-plus', modalTitle: 'Adicionar Tarefa', size: 'large', secondBtnFunction: handlePostToDo };
 
 onMounted(() => {
   checkLogged('/');
@@ -85,7 +81,7 @@ onMounted(() => {
       <v-col cols="12" class="mb-14"> <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination></v-col>
     </v-row>
 
-    <Modal :modal="modalHome" />
+    <Modal :modal="modalHome" @handle-post-to-do="handlePostToDo" />
   </v-container>
 </template>
 <style scoped></style>
