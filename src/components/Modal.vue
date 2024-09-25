@@ -1,11 +1,17 @@
 <script setup lang="ts">
+import { getToDoInfs } from '@/services/api';
 import type ModalType from '@/types/ModalType';
 import { ref } from 'vue';
 
 interface ModalProps {
   modal: ModalType;
+  idToDoInfs?: number;
 }
 defineProps<ModalProps>();
+
+const modalFunctions = defineEmits<{
+  handlePostToDo: [title: string, content: string, priority: string];
+}>();
 
 const title = ref<string>('');
 const content = ref<string>('');
@@ -14,6 +20,13 @@ const priority = ref<string>('');
 title.value = '';
 content.value = '';
 priority.value = '';
+
+export async function handleGetToDoInfs(id?: number) {
+  if (id) {
+    const response = await getToDoInfs(id);
+    if (response) return (title.value = response.data.title), (content.value = response.data.content); // temos que fazer a lógica para puxar a prioridade também.
+  } else return;
+}
 </script>
 <template>
   <v-dialog max-width="600" persistent>
@@ -26,7 +39,7 @@ priority.value = '';
         @click="
           {
             {
-              modal.firstBtnFunction;
+              handleGetToDoInfs(idToDoInfs);
             }
           }
         "
@@ -53,19 +66,8 @@ priority.value = '';
         </v-card-text>
 
         <v-card-actions>
-          <v-btn
-            text="Adicionar"
-            color="primary"
-            variant="tonal"
-            @click="
-              {
-                {
-                  modal.secondBtnFunction(title, content, priority), (isActive.value = false);
-                }
-              }
-            "
-          >
-          </v-btn>
+          <v-btn text="Adicionar" color="primary" variant="tonal" @click="modalFunctions('handlePostToDo', title, content, priority), (isActive.value = false)"> </v-btn>
+          <!-- Agora temos que resolver essa funçõa, torna-la flexivel, não estática. usar ternário-->
           <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
         </v-card-actions>
       </v-card>
