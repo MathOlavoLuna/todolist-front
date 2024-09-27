@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getToDoInfs } from '@/services/api';
 import type ModalType from '@/types/ModalType';
+
 import { ref } from 'vue';
 
 interface ModalProps {
@@ -11,6 +12,7 @@ defineProps<ModalProps>();
 
 const modalFunctions = defineEmits<{
   handlePostToDo: [title: string, content: string, priority: string];
+  handlePutToDo: [id: number, title: string, content: string, priority: string];
 }>();
 
 const title = ref<string>('');
@@ -21,7 +23,7 @@ title.value = '';
 content.value = '';
 priority.value = '';
 
-export async function handleGetToDoInfs(id?: number) {
+async function handleGetToDoInfs(id?: number) {
   if (id) {
     const response = await getToDoInfs(id);
     if (response) return (title.value = response.data.title), (content.value = response.data.content); // temos que fazer a lógica para puxar a prioridade também.
@@ -34,7 +36,7 @@ export async function handleGetToDoInfs(id?: number) {
       <v-btn
         :icon="modal.icon"
         :size="modal.size"
-        class="btn-add-todo"
+        :class="{ 'btn-add-todo': !idToDoInfs }"
         v-bind="activatorProps"
         @click="
           {
@@ -66,8 +68,13 @@ export async function handleGetToDoInfs(id?: number) {
         </v-card-text>
 
         <v-card-actions>
-          <v-btn text="Adicionar" color="primary" variant="tonal" @click="modalFunctions('handlePostToDo', title, content, priority), (isActive.value = false)"> </v-btn>
-          <!-- Agora temos que resolver essa funçõa, torna-la flexivel, não estática. usar ternário-->
+          <v-btn
+            :text="idToDoInfs ? 'Editar' : 'Adicionar'"
+            color="primary"
+            variant="tonal"
+            @click="idToDoInfs ? modalFunctions('handlePutToDo', idToDoInfs, title, content, priority) : modalFunctions('handlePostToDo', title, content, priority), (isActive.value = false)"
+          >
+          </v-btn>
           <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
         </v-card-actions>
       </v-card>
