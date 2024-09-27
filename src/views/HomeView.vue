@@ -77,11 +77,10 @@ onMounted(() => {
       <v-progress-circular color="black" indeterminate :size="59" :width="5"></v-progress-circular>
     </div>
     <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
+    <Modal :modal="modalHome" @handle-post-to-do="handlePostToDo" />
     <v-row>
       <v-col cols="12" class="mb-14"> <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination></v-col>
     </v-row>
-
-    <Modal :modal="modalHome" @handle-post-to-do="handlePostToDo" />
   </v-container>
 </template>
 <style scoped></style>
