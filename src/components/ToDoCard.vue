@@ -30,17 +30,17 @@ async function handleEditDone(id: number) {
   if (response) emits('callGetToDo');
 }
 
-async function handlePutToDo(id: number) {
-  const validatedPriority = validatePriority(priority.value);
-  const response = await putToDo(id, title.value, content.value, validatedPriority);
-  if (response) emits('callGetToDo');
-}
-
 async function handleDeleteToDo(id: number) {
   const response = await delToDo(id);
   if (response) {
     emits('callGetToDo');
   }
+}
+
+async function handlePutToDo(id: number, title: string, content: string, priority: string) {
+  const validatedPriority = validatePriority(priority);
+  const response = await putToDo(id, title, content, validatedPriority);
+  if (response) emits('callGetToDo');
 }
 
 function showIcons() {
@@ -77,38 +77,7 @@ const modalEdit: ModalType = { icon: 'mdi-pencil', modalIcon: 'mdi mdi-pencil', 
       </v-card>
     </v-col>
     <v-col v-if="showClouds" cols="12" lg="3" class="d-flex flex-column">
-      <Modal :modal="modalEdit" :id-to-do-infs="toDo.id" />
-      <!-- <v-dialog max-width="600" persistent>
-        <template v-slot:activator="{ props: activatorProps }">
-          <v-btn icon="mdi-pencil" size="default" v-bind="activatorProps" @click="handleGetToDoInfs(toDo.id)"></v-btn>
-        </template>
-
-        <template v-slot:default="{ isActive }">
-          <v-card prepend-icon="mdi mdi-pencil" title="Editar Tarefa">
-            <v-card-text>
-              <v-row>
-                <v-col cols="12" lg="12">
-                  <v-text-field label="Título" variant="underlined" clearable required v-model="title" maxlength="40"></v-text-field>
-                </v-col>
-                <v-col cols="12" lg="12">
-                  <v-text-field label="Conteúdo" variant="underlined" clearable v-model="content"></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12" lg="12">
-                  <v-label> Prioridade </v-label>
-                  <v-combobox v-model="priority" :items="['Baixa', 'Média', 'Alta']" variant="underlined"></v-combobox>
-                </v-col>
-              </v-row>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-btn text="Editar" color="primary" variant="tonal" @click="handlePutToDo(toDo.id), (isActive.value = false)"></v-btn>
-              <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
-            </v-card-actions>
-          </v-card>
-        </template>
-      </v-dialog> -->
+      <Modal :modal="modalEdit" :id-to-do-infs="toDo.id" @handle-put-to-do="handlePutToDo" />
       <v-btn class="d-block" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn
     ></v-col>
   </v-row>
