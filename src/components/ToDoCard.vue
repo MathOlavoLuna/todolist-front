@@ -13,11 +13,6 @@ interface toDoProps {
 }
 defineProps<toDoProps>();
 
-//Put ToDo
-const title = ref<string>('');
-const content = ref<string>('');
-const priority = ref<string>('');
-
 //Edit - Delete
 const showClouds = ref<boolean>(false);
 
@@ -51,36 +46,34 @@ const modalEdit: ModalType = { icon: 'mdi-pencil', modalIcon: 'mdi mdi-pencil', 
 </script>
 
 <template>
-  <v-row class="d-flex justify-center aling-center">
-    <v-col cols="12" lg="9" @click="showIcons">
-      <v-card class="mx-auto" max-width="1000" hover :class="{ 'opacity-50': toDo.done }">
-        <v-card-item>
-          <div class="d-flex align-center justify-space-between">
-            <div class="text-lg-h5 text-phone">{{ toDo.title }}</div>
-            <div v-if="toDo.priority === 1">
-              <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-green"></svg-icon>
-            </div>
-            <div v-else-if="toDo.priority === 2">
-              <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-yellow"></svg-icon>
-            </div>
-            <div v-else-if="toDo.priority === 3">
-              <svg-icon type="mdi" :path="path" class="text-red"></svg-icon>
-            </div>
+  <v-col cols="12" lg="3">
+    <v-card class="mx-auto" width="300" height="400px" hover :class="{ 'opacity-50': toDo.done }" @click="showIcons">
+      <v-card-item>
+        <div class="d-flex align-center justify-space-between">
+          <div class="text-lg-h5 text-phone">{{ toDo.title }}</div>
+          <div v-if="toDo.priority === 1">
+            <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-green"></svg-icon>
           </div>
-        </v-card-item>
-        <v-card-text class="d-flex align-center justify-space-between">
-          <div>{{ toDo.content }}</div>
-          <label class="form-control">
-            <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
-          </label>
-        </v-card-text>
-      </v-card>
-    </v-col>
-    <v-col v-if="showClouds" cols="12" lg="3" class="d-flex flex-column">
-      <Modal :modal="modalEdit" :id-to-do-infs="toDo.id" @handle-put-to-do="handlePutToDo" />
-      <v-btn class="d-block" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn
-    ></v-col>
-  </v-row>
+          <div v-else-if="toDo.priority === 2">
+            <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-yellow"></svg-icon>
+          </div>
+          <div v-else-if="toDo.priority === 3">
+            <svg-icon type="mdi" :path="path" class="text-red"></svg-icon>
+          </div>
+        </div>
+      </v-card-item>
+      <v-card-text class="d-flex align-center justify-space-between">
+        <div>{{ toDo.content }}</div>
+        <label class="form-control">
+          <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
+        </label>
+      </v-card-text>
+    </v-card>
+  </v-col>
+  <aside v-if="showClouds" class="position-relative top-0" z-index>
+    <Modal :modal="modalEdit" :id-to-do-infs="toDo.id" @handle-put-to-do="handlePutToDo" />
+    <v-btn class="d-block" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn>
+  </aside>
 </template>
 
 <style scoped>
