@@ -42,9 +42,10 @@ onMounted(() => {
                 <v-list-item class="pb-5" prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :subtitle="userStore.user?.email" :title="userStore.user?.name"></v-list-item>
                 <v-divider></v-divider>
               </v-list>
+
               <v-list density="compact" nav class="d-flex flex-column justify-center h-50">
-                <v-list-item prepend-icon="mdi-check" title="Tasks" value="myfiles"></v-list-item>
-                <v-list-item prepend-icon="mdi-calendar-check" title="Calendar" value="shared"></v-list-item>
+                <v-list-item prepend-icon="mdi-check" title="Tasks"></v-list-item>
+                <v-list-item prepend-icon="mdi-calendar-check" title="Calendar"></v-list-item>
               </v-list>
             </v-navigation-drawer>
           </v-layout>
