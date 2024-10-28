@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { mdiArrowLeftDropCircle } from '@mdi/js';
-const icons = { mdiArrowLeftDropCircle };
+import { logout } from '@/services/api';
 
 const handleLogOut = () => {
+  logout();
   localStorage.removeItem('token');
 };
 </script>
