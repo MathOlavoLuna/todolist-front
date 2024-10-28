@@ -4,7 +4,7 @@ import NavBar from '@/components/NavBar.vue';
 import ToDoCard from '@/components/ToDoCard.vue';
 import {} from '@mdi/js';
 import { getToDo, getUser, postToDo } from '@/services/api';
-import type { ToDoType } from '@/types';
+import type { ToDoType, UserType } from '@/types';
 import { checkLogged } from '@/utils/checkLogged';
 import { onMounted, ref, watch } from 'vue';
 import { validatePriority } from '@/utils/validatePriority';

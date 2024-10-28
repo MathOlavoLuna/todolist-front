@@ -2,7 +2,7 @@
 import { delToDo, editDone, getToDo, getToDoInfs, putToDo } from '@/services/api';
 import type { ToDoType } from '@/types';
 import { validatePriority } from '@/utils/validatePriority';
-import SvgIcon from '@jamescoyle/vue-icon';
+// import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiSquare } from '@mdi/js';
 import { ref, watch } from 'vue';
 import Modal from './Modal.vue';
@@ -13,14 +13,9 @@ interface toDoProps {
 }
 defineProps<toDoProps>();
 
-//Put ToDo
-const title = ref<string>('');
-const content = ref<string>('');
-const priority = ref<string>('');
-
 //Edit - Delete
-const showClouds = ref<boolean>(false);
-
+const openDeleteButton = ref<boolean>(false);
+const openEditModal = ref<boolean>(false);
 const path = mdiSquare;
 const doneCheck = ref<boolean>(false);
 const emits = defineEmits(['callGetToDo']);
@@ -42,48 +37,119 @@ async function handlePutToDo(id: number, title: string, content: string, priorit
   const response = await putToDo(id, title, content, validatedPriority);
   if (response) emits('callGetToDo');
 }
-
-function showIcons() {
-  showClouds.value = !showClouds.value;
-}
-
-const modalEdit: ModalType = { icon: 'mdi-pencil', modalIcon: 'mdi mdi-pencil', modalTitle: 'Editar Tarefa', size: 'default' };
 </script>
 
 <template>
-  <v-row class="d-flex justify-center aling-center">
-    <v-col cols="12" lg="9" @click="showIcons">
-      <v-card class="mx-auto" max-width="1000" hover :class="{ 'opacity-50': toDo.done }">
-        <v-card-item>
-          <div class="d-flex align-center justify-space-between">
-            <div class="text-lg-h5 text-phone">{{ toDo.title }}</div>
-            <div v-if="toDo.priority === 1">
-              <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-green"></svg-icon>
-            </div>
-            <div v-else-if="toDo.priority === 2">
-              <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-yellow"></svg-icon>
-            </div>
-            <div v-else-if="toDo.priority === 3">
-              <svg-icon type="mdi" :path="path" class="text-red"></svg-icon>
-            </div>
-          </div>
-        </v-card-item>
-        <v-card-text class="d-flex align-center justify-space-between">
-          <div>{{ toDo.content }}</div>
-          <label class="form-control">
-            <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
-          </label>
-        </v-card-text>
+  a primeiro momento so penso em uma modal local
+  <!-- <div v-if="openEditModal" class="text-center">
+    <v-dialog v-model="openEditModal" width="auto">
+      <v-card max-width="400" prepend-icon="mdi-update" text="Your application will relaunch automatically after the update is complete." title="Update in progress">
+        <template>
+          <v-btn class="ms-auto" text="Ok" @click="openEditModal = false"></v-btn>
+        </template>
       </v-card>
-    </v-col>
-    <v-col v-if="showClouds" cols="12" lg="3" class="d-flex flex-column">
-      <Modal :modal="modalEdit" :id-to-do-infs="toDo.id" @handle-put-to-do="handlePutToDo" />
-      <v-btn class="d-block" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn
-    ></v-col>
-  </v-row>
+    </v-dialog>
+  </div> -->
+  <!-- uma coisa de cada vez, primeiro arruma o botao do delete, por timer ou ajeitar da maneira certa. -->
+  <v-col cols="12" lg="3">
+    <v-card
+      class="mx-auto"
+      width="300"
+      height="400px"
+      hover
+      :class="{ 'opacity-50': toDo.done }"
+      @mouseenter="openDeleteButton = true"
+      @mouseleave="openDeleteButton = false"
+      @click="openEditModal = true"
+    >
+      <v-card-item>
+        <div class="d-flex align-center justify-space-between">
+          <div class="text-lg-h5 text-phone">{{ toDo.title.length < 20 ? toDo.title : toDo.title.substring(0, 20) + '...' }}</div>
+          <div v-if="toDo.priority === 1">
+            <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-green"></svg-icon>
+          </div>
+          <div v-else-if="toDo.priority === 2">
+            <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-yellow"></svg-icon>
+          </div>
+          <div v-else-if="toDo.priority === 3">
+            <svg-icon type="mdi" :path="path" class="text-red"></svg-icon>
+          </div>
+        </div>
+      </v-card-item>
+      <v-card-text class="d-flex align-center justify-space-between">
+        <div>{{ toDo.content.length < 40 ? toDo.content : toDo.content.substring(0, 40) + '...' }}</div>
+        <label class="form-control">
+          <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
+        </label>
+      </v-card-text>
+      <v-btn v-if="openDeleteButton" class="slide-in-blurred-left delete-icon" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn>
+    </v-card>
+  </v-col>
 </template>
 
 <style scoped>
+.slide-in-blurred-left {
+  -webkit-animation: slide-in-blurred-left 0.6s ease-in-out both;
+  animation: slide-in-blurred-left 0.6s ease-in-out both;
+}
+
+.delete-icon {
+  position: absolute;
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2024-10-25 20:39:40
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info. 
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation slide-in-blurred-left
+ * ----------------------------------------
+ */
+@-webkit-keyframes slide-in-blurred-left {
+  0% {
+    -webkit-transform: translateX(-100px) scaleX(2.5);
+    transform: translateX(-100px) scaleX(2.5);
+    -webkit-transform-origin: 10% 50%;
+    transform-origin: 10% 50%;
+    -webkit-filter: blur(30px);
+    filter: blur(30px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateX(0) scaleX(1);
+    transform: translateX(0) scaleX(1);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-filter: blur(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-in-blurred-left {
+  0% {
+    -webkit-transform: translateX(-100px) scaleX(2.5);
+    transform: translateX(-100px) scaleX(2.5);
+    -webkit-transform-origin: 10% 50%;
+    transform-origin: 10% 50%;
+    -webkit-filter: blur(25px);
+    filter: blur(25px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateX(0) scaleX(1);
+    transform: translateX(0) scaleX(1);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-filter: blur(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
 .form-control {
   font-family: system-ui, sans-serif;
   font-size: 2rem;
