@@ -1,28 +1,34 @@
 <script setup lang="ts">
 import { delToDo, editDone, getToDo, getToDoInfs, putToDo } from '@/services/api';
 import type { ToDoType } from '@/types';
-import { validatePriority } from '@/utils/validatePriority';
+import { priorityToNumber, priorityToString } from '@/utils/validatePriority';
 // import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiSquare } from '@mdi/js';
 import { ref, watch } from 'vue';
-import Modal from './Modal.vue';
-import type ModalType from '@/types/ModalType';
 
 interface toDoProps {
   toDo: ToDoType;
 }
 defineProps<toDoProps>();
 
+const title = ref<string>('');
+const content = ref<string>('');
+const priority = ref<string>('');
+
 //Edit - Delete
 const openDeleteButton = ref<boolean>(false);
 const openEditModal = ref<boolean>(false);
-const path = mdiSquare;
 const doneCheck = ref<boolean>(false);
 const emits = defineEmits(['callGetToDo']);
 
 async function handleEditDone(id: number) {
   const response = await editDone(id, !doneCheck.value); //negando o valor para que ele sempre faça o edit da maneira correta (tu anotou isso no word VUE)
   if (response) emits('callGetToDo');
+}
+
+async function handleGetToDoInfs(id: number) {
+  const response = await getToDoInfs(id);
+  if (response) return (title.value = response.data.title), (content.value = response.data.content), (priority.value = priorityToString(response.data.priority)); // temos que fazer a lógica para puxar a prioridade também.
 }
 
 async function handleDeleteToDo(id: number) {
@@ -33,57 +39,75 @@ async function handleDeleteToDo(id: number) {
 }
 
 async function handlePutToDo(id: number, title: string, content: string, priority: string) {
-  const validatedPriority = validatePriority(priority);
+  const validatedPriority = priorityToNumber(priority);
   const response = await putToDo(id, title, content, validatedPriority);
   if (response) emits('callGetToDo');
 }
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function changeOpenDeleteButton() {
+  await delay(2000);
+  openDeleteButton.value = false;
+}
+
+watch(priority, () => {
+  console.log(priority.value);
+});
 </script>
 
 <template>
-  a primeiro momento so penso em uma modal local
-  <!-- <div v-if="openEditModal" class="text-center">
-    <v-dialog v-model="openEditModal" width="auto">
-      <v-card max-width="400" prepend-icon="mdi-update" text="Your application will relaunch automatically after the update is complete." title="Update in progress">
-        <template>
-          <v-btn class="ms-auto" text="Ok" @click="openEditModal = false"></v-btn>
-        </template>
+  <aside v-if="openEditModal" class="text-center">
+    <v-dialog v-model="openEditModal" v-bind:style="$vuetify.display.xs ? { margin: '5%', height: '75%' } : {}" width="100%" height="100%" max-width="600" max-height="600">
+      <v-card prepend-icon="mdi-note-edit" title="Editar a Fazer" class="w pa-5 rounded-0 modal-shadow h-100">
+        <v-form @submit.prevent>
+          <v-text-field prepend-icon="mdi-rename" v-model="title" label="Título" row-height="15" rows="1" variant="solo" class="elevation-0" bg-color="grey-lighten-1" color="white"> </v-text-field>
+          <v-textarea
+            prepend-icon="mdi-content-copy"
+            v-model="content"
+            label="Conteúdo"
+            row-height="30"
+            rows="4"
+            variant="solo"
+            clearable
+            no-resize
+            class="elevation-0"
+            bg-color="grey-lighten-1"
+            color="white"
+          >
+          </v-textarea>
+          <v-select prepend-icon="mdi-flag-variant" chips label="Prioridade" :items="['Baixa', 'Média', 'Alta']" variant="solo" bg-color="grey-lighten-1" color="black" v-model="priority"> </v-select>
+          <v-btn class="bg-grey-lighten-1 position-absolute right-0 bottom-0 mr-5 mb-5" @click="handlePutToDo(toDo.id, title, content, priority)">Editar</v-btn>
+        </v-form>
       </v-card>
     </v-dialog>
-  </div> -->
-  <!-- uma coisa de cada vez, primeiro arruma o botao do delete, por timer ou ajeitar da maneira certa. -->
+  </aside>
   <v-col cols="12" lg="3">
-    <v-card
-      class="mx-auto"
-      width="300"
-      height="400px"
-      hover
-      :class="{ 'opacity-50': toDo.done }"
-      @mouseenter="openDeleteButton = true"
-      @mouseleave="openDeleteButton = false"
-      @click="openEditModal = true"
-    >
-      <v-card-item>
-        <div class="d-flex align-center justify-space-between">
+    <section class="d-flex justify-center align-center">
+      <v-card
+        class="mx-auto"
+        width="300"
+        height="400px"
+        hover
+        :class="{ 'opacity-50': toDo.done }"
+        @mouseenter="openDeleteButton = true"
+        @mouseleave="changeOpenDeleteButton"
+        @click="(openEditModal = true), handleGetToDoInfs(toDo.id)"
+      >
+        <v-card-item>
           <div class="text-lg-h5 text-phone">{{ toDo.title.length < 20 ? toDo.title : toDo.title.substring(0, 20) + '...' }}</div>
-          <div v-if="toDo.priority === 1">
-            <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-green"></svg-icon>
-          </div>
-          <div v-else-if="toDo.priority === 2">
-            <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-yellow"></svg-icon>
-          </div>
-          <div v-else-if="toDo.priority === 3">
-            <svg-icon type="mdi" :path="path" class="text-red"></svg-icon>
-          </div>
-        </div>
-      </v-card-item>
-      <v-card-text class="d-flex align-center justify-space-between">
-        <div>{{ toDo.content.length < 40 ? toDo.content : toDo.content.substring(0, 40) + '...' }}</div>
-        <label class="form-control">
-          <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
-        </label>
-      </v-card-text>
+        </v-card-item>
+        <v-card-text class="d-flex align-center justify-space-between">
+          <div>{{ toDo.content.length < 40 ? toDo.content : toDo.content.substring(0, 40) + '...' }}</div>
+          <label class="form-control">
+            <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
+          </label>
+        </v-card-text>
+      </v-card>
       <v-btn v-if="openDeleteButton" class="slide-in-blurred-left delete-icon" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn>
-    </v-card>
+    </section>
   </v-col>
 </template>
 
@@ -100,7 +124,7 @@ async function handlePutToDo(id: number, title: string, content: string, priorit
 /* ----------------------------------------------
  * Generated by Animista on 2024-10-25 20:39:40
  * Licensed under FreeBSD License.
- * See http://animista.net/license for more info. 
+ * See http://animista.net/license for more info.
  * w: http://animista.net, t: @cssanimista
  * ---------------------------------------------- */
 
@@ -192,6 +216,12 @@ input[type='checkbox']::before {
 
 input[type='checkbox']:checked::before {
   transform: scale(1);
+}
+
+.modal-shadow {
+  box-shadow: 11px 10px 0px 0px rgba(115, 115, 115, 0.75) !important;
+  -webkit-box-shadow: 11px 10px 0px 0px rgba(115, 115, 115, 0.75) !important;
+  -moz-box-shadow: 11px 10px 0px 0px rgba(115, 115, 115, 0.75) !important;
 }
 @media (max-width: 500px) {
   .text-phone {
