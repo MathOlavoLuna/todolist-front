@@ -19,33 +19,18 @@ const title = ref<string>('');
 const content = ref<string>('');
 const priority = ref<string>('');
 
-title.value = '';
-content.value = '';
-priority.value = '';
-
-async function handleGetToDoInfs(id?: number) {
-  if (id) {
-    const response = await getToDoInfs(id);
-    if (response) return (title.value = response.data.title), (content.value = response.data.content); // temos que fazer a lógica para puxar a prioridade também.
-  } else return;
+function clearFields() {
+  title.value = '';
+  content.value = '';
+  priority.value = '';
 }
+
+clearFields();
 </script>
 <template>
   <v-dialog max-width="600" persistent>
     <template v-slot:activator="{ props: activatorProps }">
-      <v-btn
-        :icon="modal.icon"
-        :size="modal.size"
-        :class="{ 'btn-add-todo': !idToDoInfs }"
-        v-bind="activatorProps"
-        @click="
-          {
-            {
-              handleGetToDoInfs(idToDoInfs);
-            }
-          }
-        "
-      ></v-btn>
+      <v-btn :icon="modal.icon" :size="modal.size" :class="{ 'btn-add-todo': !idToDoInfs }" v-bind="activatorProps"></v-btn>
     </template>
 
     <template v-slot:default="{ isActive }">
