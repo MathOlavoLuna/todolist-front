@@ -28,7 +28,7 @@ async function handleEditDone(id: number) {
 
 async function handleGetToDoInfs(id: number) {
   const response = await getToDoInfs(id);
-  if (response) return (title.value = response.data.title), (content.value = response.data.content), (priority.value = priorityToString(response.data.priority)); // temos que fazer a lógica para puxar a prioridade também.
+  if (response) return (title.value = response.data.title), (content.value = response.data.content), (priority.value = priorityToString(response.data.priority));
 }
 
 async function handleDeleteToDo(id: number) {
