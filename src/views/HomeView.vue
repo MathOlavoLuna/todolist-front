@@ -7,15 +7,12 @@ import { getToDo, getUser, postToDo } from '@/services/api';
 import type { ToDoType, UserType } from '@/types';
 import { checkLogged } from '@/utils/checkLogged';
 import { onMounted, ref, watch } from 'vue';
-import { validatePriority } from '@/utils/validatePriority';
+import { priorityToNumber } from '@/utils/validatePriority';
 import Modal from '@/components/Modal.vue';
 import type ModalType from '@/types/ModalType';
 
 const toDos = ref<ToDoType[]>();
 const helloUserActive = ref<boolean>(false);
-
-//Modal
-const modalHome: ModalType = { icon: 'mdi-plus', modalIcon: 'mdi mdi-playlist-plus', modalTitle: 'Adicionar Tarefa', size: 'large' };
 
 //Pagination
 const page = ref<number>(1);
@@ -42,17 +39,6 @@ const handleGetUser = async () => {
   localStorage.setItem('user', JSON.stringify(response));
 };
 
-const handlePostToDo = async (title: string, content: string, priority: string) => {
-  const validatedPriority = validatePriority(priority);
-  const response = await postToDo(title, content, validatedPriority);
-  if (response) {
-    alert('A fazer atribuído.');
-    handleGetToDo();
-  } else {
-    alert('A fazer não atribuído.');
-  }
-};
-
 onMounted(() => {
   checkLogged('/');
   spinner.value = true;
@@ -77,7 +63,7 @@ onMounted(() => {
       <v-progress-circular color="black" indeterminate :size="59" :width="5"></v-progress-circular>
     </div>
     <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
-    <Modal :modal="modalHome" @handle-post-to-do="handlePostToDo" />
+
     <v-row>
       <v-col cols="12" class="mb-14"> <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination></v-col>
     </v-row>
