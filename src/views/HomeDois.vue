@@ -1,18 +1,26 @@
 <script setup lang="ts">
 import HelloUser from '@/components/HelloUser.vue';
+import Modal from '@/components/Modal.vue';
 import ToDoCard from '@/components/ToDoCard.vue';
-import { getToDo } from '@/services/api';
+import { getToDo, postToDo } from '@/services/api';
 import { useUserStore } from '@/store';
 import type { ToDoType } from '@/types';
+import type ModalType from '@/types/ModalType';
+import { priorityToNumber } from '@/utils/validatePriority';
 import { onMounted, ref } from 'vue';
 
 const toDos = ref<ToDoType[]>();
+
+const modalHome: ModalType = { icon: 'mdi-plus', modalIcon: 'mdi mdi-playlist-plus', modalTitle: 'Adicionar Tarefa', size: 'large' };
+
 //Pagination
 const page = ref<number>(1);
 const lastPage = ref<number>(0);
 const spinner = ref<boolean>(false);
 
 const userStore = useUserStore();
+
+//async functions
 const handleGetToDo = async () => {
   const response = await getToDo(page.value);
   lastPage.value = response.last_page;
@@ -24,6 +32,18 @@ const handleGetToDo = async () => {
   }
   return false;
 };
+
+const handlePostToDo = async (title: string, content: string, priority: string) => {
+  const validatedPriority = priorityToNumber(priority);
+  const response = await postToDo(title, content, validatedPriority);
+  if (response) {
+    alert('A fazer atribuído.');
+    handleGetToDo();
+  } else {
+    alert('A fazer não atribuído.');
+  }
+};
+
 onMounted(() => {
   userStore.fetchUser();
   handleGetToDo();
@@ -55,6 +75,7 @@ onMounted(() => {
       <v-col cols="12" lg="10" class="bg-yellow-lighten-5 d-flex flex-wrap">
         <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
       </v-col>
+      <Modal :modal="modalHome" @handle-post-to-do="handlePostToDo" />
     </v-row>
   </v-container>
 </template>
