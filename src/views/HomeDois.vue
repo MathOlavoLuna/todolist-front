@@ -51,28 +51,29 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-red" expand-on-hover></div>
+  <div expand-on-hover></div>
   <v-container fluid class="h-screen pa-0 ma-0">
     <v-row class="h-100 pa-0 ma-0">
-      <v-col cols="12" lg="2" class="bg-yellow-lighten-5">
-        <v-card>
+      <v-col cols="12" lg="1" class="bg-secondary">
+        <v-card style="z-index: 9999">
           <v-layout>
-            <v-navigation-drawer expand-on-hover rail class="bg-blue">
-              <v-list class="h-25">
-                <v-list-item class="pb-5" prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :subtitle="userStore.user?.email" :title="userStore.user?.name"></v-list-item>
-                <v-divider></v-divider>
+            <v-navigation-drawer expand-on-hover rail class="bg-primary">
+              <v-list>
+                <v-list-item prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg" :subtitle="userStore.user?.email" :title="userStore.user?.name"></v-list-item>
               </v-list>
 
-              <v-list density="compact" nav class="d-flex flex-column justify-center h-50">
-                <v-list-item prepend-icon="mdi-check" title="Tasks"></v-list-item>
-                <v-list-item prepend-icon="mdi-calendar-check" title="Calendar"></v-list-item>
+              <v-divider></v-divider>
+
+              <v-list density="default" nav>
+                <v-list-item prepend-icon="mdi-check" title="Tarefas" value="tarefas"></v-list-item>
+                <v-list-item prepend-icon="mdi-calendar-check" title="Calendário" value="calendario"></v-list-item>
               </v-list>
             </v-navigation-drawer>
           </v-layout>
         </v-card>
       </v-col>
 
-      <v-col cols="12" lg="10" class="bg-yellow-lighten-5 d-flex flex-wrap">
+      <v-col cols="12" lg="11" class="bg-secondary d-flex flex-wrap">
         <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
       </v-col>
       <Modal :modal="modalHome" @handle-post-to-do="handlePostToDo" />
@@ -80,4 +81,4 @@ onMounted(() => {
   </v-container>
 </template>
 
-<style></style>
+<style scoped></style>

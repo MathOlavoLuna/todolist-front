@@ -42,10 +42,7 @@ async function handlePutToDo(id: number, title: string, content: string, priorit
   const validatedPriority = priorityToNumber(priority);
   const response = await putToDo(id, title, content, validatedPriority);
   if (response) emits('callGetToDo');
-}
-
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  clearFields();
 }
 
 async function changeOpenDeleteButton() {
@@ -53,9 +50,15 @@ async function changeOpenDeleteButton() {
   openDeleteButton.value = false;
 }
 
-watch(priority, () => {
-  console.log(priority.value);
-});
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function clearFields() {
+  title.value = '';
+  content.value = '';
+  priority.value = '';
+}
 </script>
 
 <template>
@@ -87,10 +90,10 @@ watch(priority, () => {
   <v-col cols="12" lg="3">
     <section class="d-flex justify-center align-center">
       <v-card
-        class="mx-auto"
+        rounded="0"
         width="300"
         height="400px"
-        hover
+        class="card-shadow"
         :class="{ 'opacity-50': toDo.done }"
         @mouseenter="openDeleteButton = true"
         @mouseleave="changeOpenDeleteButton"
@@ -182,6 +185,7 @@ watch(priority, () => {
   display: grid;
   grid-template-columns: 1.3rem auto;
 }
+
 input[type='checkbox'] {
   -webkit-appearance: none;
   appearance: none;
@@ -219,9 +223,15 @@ input[type='checkbox']:checked::before {
 }
 
 .modal-shadow {
-  box-shadow: 11px 10px 0px 0px rgba(115, 115, 115, 0.75) !important;
-  -webkit-box-shadow: 11px 10px 0px 0px rgba(115, 115, 115, 0.75) !important;
-  -moz-box-shadow: 11px 10px 0px 0px rgba(115, 115, 115, 0.75) !important;
+  box-shadow: 11px 2px 0px 0px rgba(115, 115, 115, 0.75) !important;
+  -webkit-box-shadow: 11px 2px 0px 0px rgba(115, 115, 115, 0.75) !important;
+  -moz-box-shadow: 11px 2px 0px 0px rgba(115, 115, 115, 0.75) !important;
+}
+
+.card-shadow {
+  box-shadow: 10px 11px 1px -3px rgba(115, 115, 115, 0.75) !important;
+  -webkit-box-shadow: 10px 11px 1px -3px rgba(115, 115, 115, 0.75) !important;
+  -moz-box-shadow: 10px 11px 1px -3px rgba(115, 115, 115, 0.75) !important;
 }
 @media (max-width: 500px) {
   .text-phone {

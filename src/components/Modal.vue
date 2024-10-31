@@ -30,7 +30,7 @@ clearFields();
 <template>
   <v-dialog max-width="600" persistent>
     <template v-slot:activator="{ props: activatorProps }">
-      <v-btn :icon="modal.icon" :size="modal.size" :class="{ 'btn-add-todo': !idToDoInfs }" v-bind="activatorProps"></v-btn>
+      <v-btn :icon="modal.icon" :size="modal.size" :class="{ 'btn-add-todo': !idToDoInfs }" v-bind="activatorProps" color="blue"></v-btn>
     </template>
 
     <template v-slot:default="{ isActive }">
@@ -57,10 +57,12 @@ clearFields();
             :text="idToDoInfs ? 'Editar' : 'Adicionar'"
             color="primary"
             variant="tonal"
-            @click="idToDoInfs ? modalFunctions('handlePutToDo', idToDoInfs, title, content, priority) : modalFunctions('handlePostToDo', title, content, priority), (isActive.value = false)"
+            @click="
+              idToDoInfs ? modalFunctions('handlePutToDo', idToDoInfs, title, content, priority) : modalFunctions('handlePostToDo', title, content, priority), clearFields(), (isActive.value = false)
+            "
           >
           </v-btn>
-          <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
+          <v-btn text="Cancelar" @click="(isActive.value = false), clearFields()"></v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -72,7 +74,7 @@ clearFields();
   right: 0;
   bottom: 0;
   z-index: 1;
-  margin-right: 20%;
+  margin-right: 5%;
   margin-bottom: 2%;
 }
 

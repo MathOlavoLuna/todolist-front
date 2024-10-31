@@ -12,7 +12,18 @@ import { createPinia } from 'pinia';
 
 const vuetify = createVuetify({
   components,
-  directives
+  directives,
+  theme: {
+    themes: {
+      light: {
+        dark: false,
+        colors: {
+          primary: '108DCC',
+          secondary: 'E2E4C6'
+        }
+      }
+    }
+  }
 });
 
 const pinia = createPinia();
