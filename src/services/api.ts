@@ -27,6 +27,20 @@ export const login = async (email: string, password: string) => {
   }
 };
 
+export const register = async (name : string, surname : string, email : string, password : string, profileImage? : File) => {
+  try {
+    const response = await client.post('register', {
+      name,surname, email, password, profileImage
+    })
+    if(response.status === 201){
+      return response;
+    }   
+  } catch (error) {
+    console.log(error);
+  }
+
+}
+
 export const logout = async () => {
   try {
     const response = await client.delete('logout', config);
