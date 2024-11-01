@@ -1,7 +1,7 @@
 import { useRouter } from 'vue-router';
 
 export function checkLogged(url: string) {
-  const logged = sessionStorage.getItem('token');
+  const logged = localStorage.getItem('token');
   const router = useRouter();
   if (logged) {
     router.push(url);

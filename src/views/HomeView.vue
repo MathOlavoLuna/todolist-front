@@ -1,120 +1,72 @@
 <script setup lang="ts">
+import HelloUser from '@/components/HelloUser.vue';
 import NavBar from '@/components/NavBar.vue';
 import ToDoCard from '@/components/ToDoCard.vue';
-import { getToDo, postTodo } from '@/services/api';
-import type { ToDoType } from '@/types';
+import {} from '@mdi/js';
+import { getToDo, getUser, postToDo } from '@/services/api';
+import type { ToDoType, UserType } from '@/types';
 import { checkLogged } from '@/utils/checkLogged';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { priorityToNumber } from '@/utils/validatePriority';
+import Modal from '@/components/Modal.vue';
+import type ModalType from '@/types/ModalType';
 
 const toDos = ref<ToDoType[]>();
+const helloUserActive = ref<boolean>(false);
 
-const title = ref<string>('');
-const content = ref<string>('');
-const priority = ref<string>('');
+//Pagination
+const page = ref<number>(1);
+const lastPage = ref<number>(0);
+
+//Spinner
+const spinner = ref<boolean>(false);
 
 const handleGetToDo = async () => {
- const response = await getToDo();
+  const response = await getToDo(page.value);
+  lastPage.value = response.last_page;
 
- if (response) {
-  toDos.value = response;
-  return true;
- }
- return false;
+  if (response) {
+    toDos.value = response.data;
+    spinner.value = false;
+    return true;
+  }
+  return false;
 };
 
-const handlePostToDo = async () => {
- if (priority.value === 'Baixa') {
-  priority.value = '1';
- } else if (priority.value === 'Média') {
-  priority.value = '2';
- } else {
-  priority.value = '3';
- }
- const response = await postTodo(title.value, content.value, priority.value);
-
- if (response) {
-  console.log('A fazer atribuído.');
- } else {
-  console.log('A fazer não atribuído.');
- }
+const handleGetUser = async () => {
+  const response = await getUser();
+  helloUserActive.value = true;
+  localStorage.setItem('user', JSON.stringify(response));
 };
 
 onMounted(() => {
- checkLogged('/');
- handleGetToDo();
+  checkLogged('/');
+  spinner.value = true;
+  handleGetUser();
+  handleGetToDo();
 });
 </script>
 
 <template>
- <div class="h-screen d-flex flex-column align-center justify-center">
-  <v-container class="bg-blue h-100 pa-0">
-   <v-row>
-    <v-col cols="12" lg="12">
-     <NavBar class="bg-cyan" />
-    </v-col>
-   </v-row>
+  <v-container class="h-100 pa-0 bg-blue" fluid>
+    <v-row>
+      <v-col cols="12" lg="12">
+        <NavBar class="bg-cyan" />
+      </v-col>
+    </v-row>
+    <v-row class="ml-5 align-center">
+      <v-col cols="12" lg="12" md="12">
+        <div v-if="helloUserActive"><HelloUser /></div>
+      </v-col>
+    </v-row>
+    <div v-if="spinner" class="d-flex justify-center align-center h-75 w-100">
+      <v-progress-circular color="black" indeterminate :size="59" :width="5"></v-progress-circular>
+    </div>
+    <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
 
-   <v-row class="ml-5 align-center">
-    <v-col cols="12" lg="12" md="12">
-     <span>Good Afternoon Matheus</span>
-    </v-col>
-   </v-row>
-
-   <v-row class="">
-    <v-col cols="12">
-     <ToDoCard :to-do="toDo" v-for="toDo in toDos" :key="toDo.id" @call-get-to-do="handleGetToDo" />
-    </v-col>
-   </v-row>
+    <v-row>
+      <v-col cols="12" class="mb-14"> <v-pagination v-model="page" :length="lastPage" rounded="circle" @click="handleGetToDo()"></v-pagination></v-col>
+    </v-row>
   </v-container>
- </div>
-
- <v-dialog max-width="600" persistent>
-  <template v-slot:activator="{ props: activatorProps }">
-   <v-btn icon="mdi-plus" size="large" class="btn-add-todo" v-bind="activatorProps"></v-btn>
-  </template>
-
-  <template v-slot:default="{ isActive }">
-   <v-card prepend-icon="mdi mdi-playlist-plus" title="Adicionar Tarefa">
-    <v-card-text>
-     <v-row>
-      <v-col cols="12" lg="12">
-       <v-text-field label="Título" variant="underlined" clearable required v-model="title" maxlength="40"></v-text-field>
-      </v-col>
-      <v-col cols="12" lg="12">
-       <v-text-field label="Conteúdo" variant="underlined" clearable v-model="content"></v-text-field>
-      </v-col>
-     </v-row>
-     <v-row>
-      <v-col cols="12" lg="12">
-       <v-label> Prioridade </v-label>
-       <v-combobox v-model="priority" :items="['Baixa', 'Média', 'Alta']" variant="underlined"></v-combobox>
-      </v-col>
-     </v-row>
-    </v-card-text>
-
-    <v-card-actions>
-     <v-btn text="Adicionar" color="primary" variant="tonal" @click="handlePostToDo(), (isActive.value = false)"></v-btn>
-     <v-btn text="Cancelar" @click="isActive.value = false"></v-btn>
-    </v-card-actions>
-   </v-card>
-  </template>
- </v-dialog>
 </template>
-<style scoped>
-.btn-add-todo {
- position: fixed;
- right: 0;
- bottom: 0;
- z-index: 1;
- margin-right: 23.5%;
- margin-bottom: 4%;
-}
-
-@media (max-width: 1200px) {
- .btn-add-todo {
-  opacity: 80%;
-  margin-right: 4%;
-  margin-bottom: 6%;
- }
-}
-</style>
+<style scoped></style>

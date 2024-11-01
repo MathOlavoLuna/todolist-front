@@ -1,110 +1,248 @@
 <script setup lang="ts">
-import { editDone } from '@/services/api';
+import { delToDo, editDone, getToDo, getToDoInfs, putToDo } from '@/services/api';
 import type { ToDoType } from '@/types';
-import SvgIcon from '@jamescoyle/vue-icon';
+import { priorityToNumber, priorityToString } from '@/utils/validatePriority';
+// import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiSquare } from '@mdi/js';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 interface toDoProps {
- toDo: ToDoType;
+  toDo: ToDoType;
 }
 defineProps<toDoProps>();
 
-const path = mdiSquare;
+const title = ref<string>('');
+const content = ref<string>('');
+const priority = ref<string>('');
+
+//Edit - Delete
+const openDeleteButton = ref<boolean>(false);
+const openEditModal = ref<boolean>(false);
 const doneCheck = ref<boolean>(false);
 const emits = defineEmits(['callGetToDo']);
 
 async function handleEditDone(id: number) {
- const response = await editDone(id, !doneCheck.value); //negando o valor para que ele sempre faça o edit da maneira correta (tu anotou isso no word VUE)
- console.log(response);
+  const response = await editDone(id, !doneCheck.value); //negando o valor para que ele sempre faça o edit da maneira correta (tu anotou isso no word VUE)
+  if (response) emits('callGetToDo');
+}
 
- emits('callGetToDo');
+async function handleGetToDoInfs(id: number) {
+  const response = await getToDoInfs(id);
+  if (response) return (title.value = response.data.title), (content.value = response.data.content), (priority.value = priorityToString(response.data.priority));
+}
+
+async function handleDeleteToDo(id: number) {
+  const response = await delToDo(id);
+  if (response) {
+    emits('callGetToDo');
+  }
+}
+
+async function handlePutToDo(id: number, title: string, content: string, priority: string) {
+  const validatedPriority = priorityToNumber(priority);
+  const response = await putToDo(id, title, content, validatedPriority);
+  if (response) emits('callGetToDo');
+  clearFields();
+}
+
+async function changeOpenDeleteButton() {
+  await delay(2000);
+  openDeleteButton.value = false;
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function clearFields() {
+  title.value = '';
+  content.value = '';
+  priority.value = '';
 }
 </script>
 
 <template>
- <v-col cols="12" lg="12">
-  <v-card class="mx-auto" max-width="1000" hover :class="{ 'opacity-50': toDo.done }">
-   <v-card-item>
-    <div class="d-flex align-center justify-space-between">
-     <div class="text-lg-h5 text-phone">{{ toDo.title }}</div>
-
-     <div v-if="toDo.priority === 1">
-      <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-green"></svg-icon>
-     </div>
-     <div v-else-if="toDo.priority === 2">
-      <svg-icon v-if="toDo.priority" type="mdi" :path="path" class="text-yellow"></svg-icon>
-     </div>
-     <div v-else-if="toDo.priority === 3">
-      <svg-icon type="mdi" :path="path" class="text-red"></svg-icon>
-     </div>
-    </div>
-   </v-card-item>
-
-   <v-card-text class="d-flex align-center justify-space-between">
-    <div>{{ toDo.content }}</div>
-    <label class="form-control">
-     <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
-    </label>
-   </v-card-text>
-  </v-card>
- </v-col>
+  <aside v-if="openEditModal" class="text-center">
+    <v-dialog v-model="openEditModal" v-bind:style="$vuetify.display.xs ? { margin: '5%', height: '75%' } : {}" width="100%" height="100%" max-width="600" max-height="600">
+      <v-card prepend-icon="mdi-note-edit" title="Editar a Fazer" class="w pa-5 rounded-0 modal-shadow h-100">
+        <v-form @submit.prevent>
+          <v-text-field prepend-icon="mdi-rename" v-model="title" label="Título" row-height="15" rows="1" variant="solo" class="elevation-0" bg-color="grey-lighten-1" color="white"> </v-text-field>
+          <v-textarea
+            prepend-icon="mdi-content-copy"
+            v-model="content"
+            label="Conteúdo"
+            row-height="30"
+            rows="4"
+            variant="solo"
+            clearable
+            no-resize
+            class="elevation-0"
+            bg-color="grey-lighten-1"
+            color="white"
+          >
+          </v-textarea>
+          <v-select prepend-icon="mdi-flag-variant" chips label="Prioridade" :items="['Baixa', 'Média', 'Alta']" variant="solo" bg-color="grey-lighten-1" color="black" v-model="priority"> </v-select>
+          <v-btn class="bg-grey-lighten-1 position-absolute right-0 bottom-0 mr-5 mb-5" @click="handlePutToDo(toDo.id, title, content, priority)">Editar</v-btn>
+        </v-form>
+      </v-card>
+    </v-dialog>
+  </aside>
+  <v-col cols="12" lg="3">
+    <section class="d-flex justify-center align-center">
+      <v-card
+        rounded="0"
+        width="300"
+        height="400px"
+        class="card-shadow"
+        :class="{ 'opacity-50': toDo.done }"
+        @mouseenter="openDeleteButton = true"
+        @mouseleave="changeOpenDeleteButton"
+        @click="(openEditModal = true), handleGetToDoInfs(toDo.id)"
+      >
+        <v-card-item>
+          <div class="text-lg-h5 text-phone">{{ toDo.title.length < 20 ? toDo.title : toDo.title.substring(0, 20) + '...' }}</div>
+        </v-card-item>
+        <v-card-text class="d-flex align-center justify-space-between">
+          <div>{{ toDo.content.length < 40 ? toDo.content : toDo.content.substring(0, 40) + '...' }}</div>
+          <label class="form-control">
+            <input type="checkbox" :v-model="(doneCheck = toDo.done)" @click="handleEditDone(toDo.id)" :checked="doneCheck" />
+          </label>
+        </v-card-text>
+      </v-card>
+      <v-btn v-if="openDeleteButton" class="slide-in-blurred-left delete-icon" icon="mdi-delete" size="default" @click="handleDeleteToDo(toDo.id)"></v-btn>
+    </section>
+  </v-col>
 </template>
 
 <style scoped>
-.form-control {
- font-family: system-ui, sans-serif;
- font-size: 2rem;
- font-weight: bold;
- line-height: 1.1;
- display: grid;
- grid-template-columns: 1.3rem auto;
+.slide-in-blurred-left {
+  -webkit-animation: slide-in-blurred-left 0.6s ease-in-out both;
+  animation: slide-in-blurred-left 0.6s ease-in-out both;
 }
+
+.delete-icon {
+  position: absolute;
+}
+
+/* ----------------------------------------------
+ * Generated by Animista on 2024-10-25 20:39:40
+ * Licensed under FreeBSD License.
+ * See http://animista.net/license for more info.
+ * w: http://animista.net, t: @cssanimista
+ * ---------------------------------------------- */
+
+/**
+ * ----------------------------------------
+ * animation slide-in-blurred-left
+ * ----------------------------------------
+ */
+@-webkit-keyframes slide-in-blurred-left {
+  0% {
+    -webkit-transform: translateX(-100px) scaleX(2.5);
+    transform: translateX(-100px) scaleX(2.5);
+    -webkit-transform-origin: 10% 50%;
+    transform-origin: 10% 50%;
+    -webkit-filter: blur(30px);
+    filter: blur(30px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateX(0) scaleX(1);
+    transform: translateX(0) scaleX(1);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-filter: blur(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-in-blurred-left {
+  0% {
+    -webkit-transform: translateX(-100px) scaleX(2.5);
+    transform: translateX(-100px) scaleX(2.5);
+    -webkit-transform-origin: 10% 50%;
+    transform-origin: 10% 50%;
+    -webkit-filter: blur(25px);
+    filter: blur(25px);
+    opacity: 0;
+  }
+  100% {
+    -webkit-transform: translateX(0) scaleX(1);
+    transform: translateX(0) scaleX(1);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -webkit-filter: blur(0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.form-control {
+  font-family: system-ui, sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.1;
+  display: grid;
+  grid-template-columns: 1.3rem auto;
+}
+
 input[type='checkbox'] {
- -webkit-appearance: none;
- appearance: none;
- background-color: #fff;
- margin: 0;
- font: inherit;
- color: currentColor;
- width: 1.15rem;
- height: 1.15rem;
- border: 0.1rem solid currentColor;
- border-radius: 0.15em;
- transform: translateY(-0.075em);
- display: grid;
- place-content: center;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  margin: 0;
+  font: inherit;
+  color: currentColor;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 0.1rem solid currentColor;
+  border-radius: 0.15em;
+  transform: translateY(-0.075em);
+  display: grid;
+  place-content: center;
 }
 
 .form-control + .form-control {
- margin-top: 1em;
+  margin-top: 1em;
 }
 
 input[type='checkbox']::before {
- content: '';
- width: 0.45em;
- height: 0.45em;
- transform: scale(0);
- transition: 120ms transform ease-in-out;
- box-shadow: inset 1em 1em green;
- background-color: CanvasText;
- transform-origin: bottom left;
- clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  content: '';
+  width: 0.45em;
+  height: 0.45em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em green;
+  background-color: CanvasText;
+  transform-origin: bottom left;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
 input[type='checkbox']:checked::before {
- transform: scale(1);
+  transform: scale(1);
+}
+
+.modal-shadow {
+  box-shadow: 11px 2px 0px 0px rgba(115, 115, 115, 0.75) !important;
+  -webkit-box-shadow: 11px 2px 0px 0px rgba(115, 115, 115, 0.75) !important;
+  -moz-box-shadow: 11px 2px 0px 0px rgba(115, 115, 115, 0.75) !important;
+}
+
+.card-shadow {
+  box-shadow: 10px 11px 1px -3px rgba(115, 115, 115, 0.75) !important;
+  -webkit-box-shadow: 10px 11px 1px -3px rgba(115, 115, 115, 0.75) !important;
+  -moz-box-shadow: 10px 11px 1px -3px rgba(115, 115, 115, 0.75) !important;
 }
 @media (max-width: 500px) {
- .text-phone {
-  font-size: 1.3rem;
-  word-break: break-word;
- }
+  .text-phone {
+    font-size: 1.3rem;
+    word-break: break-word;
+  }
 
- .text-subtitle {
-  font-size: 1.1rem;
-  font-weight: 500;
-  font-style: oblique;
- }
+  .text-subtitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-style: oblique;
+  }
 }
 </style>
