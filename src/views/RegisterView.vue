@@ -73,7 +73,7 @@ import bgImageRegister from "@/assets/pexels-tara-winstead-8386681.jpg"
               bg-secondary"></v-avatar>
             </label> usar na profileView-->
             <span class="d-flex justify-center w-100 mt-3">
-              <v-btn color="primary w-50" @submit="handleRegister" type="submit">Criar</v-btn>
+              <v-btn color="primary w-50" @click="handleRegister" type="submit">Criar</v-btn>
             </span>
           </form>
       </v-col>
